@@ -17,9 +17,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ...
 
 // Add the route handlers here:
-
+// --------------------------------------HOME---------------------------------------------
 app.get('/', (req, res) => {
   res.render('index');
 });
+app.get('/imgBeer', (req, res) => {
+  res.sendFile(__dirname + '/public/images/beer.png');
+});
+
+// --------------------------------------BEERS---------------------------------------------
+
+app.get('/beers', (req, res) => {
+  punkAPI
+    .getBeers()
+    .then(beersFromApi => console.log('Beers from the database: ', beersFromApi))
+    .catch(error => console.log(error));
+  res.render('beers');
+});
+// --------------------------------------RANDOM-BEER---------------------------------------------
+
+app.get('/random-beer', (req, res) => {
+  res.render('random-beer');
+});
+
 
 app.listen(3000, () => console.log('🏃‍ on port 3000'));
