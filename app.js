@@ -1,6 +1,7 @@
 const express = require('express');
 
 const hbs = require('hbs');
+const { dirname } = require('path');
 const path = require('path');
 const PunkAPIWrapper = require('punkapi-javascript-wrapper');
 
@@ -9,6 +10,7 @@ const punkAPI = new PunkAPIWrapper();
 
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
+hbs.registerPartials(__dirname + "/views/partials")
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -21,24 +23,39 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   res.render('index');
 });
+
 app.get('/imgBeer', (req, res) => {
   res.sendFile(__dirname + '/public/images/beer.png');
 });
 
-// --------------------------------------BEERS---------------------------------------------
+// --------------------------------------BEERS--------------------------------------------
 
-app.get('/beers', (req, res) => {
+app.get('/beers', (req, res, next) => {
   punkAPI
     .getBeers()
-    .then(beersFromApi => console.log('Beers from the database: ', beersFromApi))
+    .then(function (beersFromApi) {
+      console.log('Beers from the database: ', beersFromApi);
+      res.render('beers', { beersFromApi })
+      req.params.ids
+      console.log('hello req')
+    })
     .catch(error => console.log(error));
-  res.render('beers');
-});
+})
+
 // --------------------------------------RANDOM-BEER---------------------------------------------
 
-app.get('/random-beer', (req, res) => {
-  res.render('random-beer');
+app.get('/random-beer', (req, res, next) => {
+  punkAPI
+    .getRandom()
+    .then(function (randomBeer) {
+      res.render('random-beer', { randomBeer })
+    })
+    .catch(error => console.log(error))
 });
+// ------------------------------------CSS-------------------------------------------------------------
+app.get('/layoutCSS', (req, res, next) =>
+  res.sendFile(__dirname + '/public/stylesheets/layout.css')
+)
 
 
 app.listen(3000, () => console.log('🏃‍ on port 3000'));
